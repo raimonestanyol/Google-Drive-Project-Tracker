@@ -49,23 +49,63 @@ function write(folder,files,ss,sheet,i){
     }
     try{
     var doc = DocumentApp.openById(file.getId());
-    sheet.getRange(i+1, 1, 1, 7).setValues([[folder.getName(),file.getName(),status(doc),result(doc),file.getLastUpdated(),file.getDateCreated(), file.getUrl()]]);
+    var filestatus = status(doc,file,folder);
+    var fileresult = result(doc);
+    var lastUpdated = file.getLastUpdated();
+    
+    sheet.getRange(i+1, 1, 1, 7).setValues([[getFolderName(folder),file.getName(),filestatus,fileresult,lastUpdated,file.getDateCreated(), file.getUrl()]]);
     i++;  
     }catch(e){console.log(e)}
   }
   return i;
 }
 
-function status(doc){
+function getFolderName(folder){
+  if (folder.getName().toLowerCase() == "completed"){
+  var parentFolder = folder.getParents()
+  var folder = parentFolder.next();}
+  return folder.getName();
+}
+
+function status(doc,file,folder){
   var completion = doc.getHeader()
   if (completion == null){completion = "";}
-  else {completion = completion.getText();}
+  else {completion = completion.getText().toLowerCase();}
+  checkMoveCompleted(completion,file,folder)
   return completion;
+}
+
+function checkMoveCompleted(completion,file,folder){
+  
+  if (completion.toLowerCase() == "completed")
+  {if(DriveApp.getFileById(file.getId()).getParents().next().getName().toLowerCase() != "completed"){
+    try{moveCompleted(file,folder);
+        console.log( file.getName().concat(" moved to completed folder"))}
+    catch(e){console.log( file.getName().toUpperCase().concat(" coudn't be moved to completed folder".concat(e)));}}
+  }
+}
+
+function moveCompleted(file,folder){
+  var subfolders = folder.getFolders()
+  var moved = false;
+  
+  while(subfolders.hasNext()){
+    var subfolder = subfolders.next();
+    if(subfolder.getName().toLowerCase() == "completed"){      
+      DriveApp.getFolderById(subfolder.getId()).addFile(file);
+      folder.removeFile(file);
+      moved = true;}}
+  
+  if( moved == false){
+    var newFolder = folder.createFolder("Completed");
+    DriveApp.getFolderById(newFolder.getId()).addFile(file);
+    folder.removeFile(file);
+     }
 }
 
 function result(doc){
   var success = doc.getFooter();
   if (success == null){success = "";}
-  else {success = success.getText();}
+  else {success = success.getText().toLowerCase();}
   return success;
 }
