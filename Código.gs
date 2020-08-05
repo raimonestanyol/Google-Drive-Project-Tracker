@@ -15,28 +15,30 @@ function getFiles() {
   
   // Look in the same folder the sheet exists in. For example, if this template is in
   // My Drive, it will return all of the files in My Drive.
-  var ssparents = DriveApp.getFileById(ssid).getParents();
+  var ssparent = DriveApp.getFileById(ssid).getParents().next();
   
-  
-  // Loop through all the files and add the values to the spreadsheet.
-  while(ssparents.hasNext()) {
-    var folder = ssparents.next();
-    var folders = folder.getFolders();
-    var files = folder.getFiles();
+  // Start row counter and adding files from folders
+  var i = 1;
+  i = subfolderation(i,ssparent,ss,sheet);   
     
-    // Start row counter and write files in parent folder
-    var i=1;
-    i = write(folder,files,ss,sheet,i)
-    
-    // Iterate through subfolders and write their files
-    while(folders.hasNext()) {
-      var folder = folders.next();
-      var files = folder.getFiles();
-      i = write(folder,files,ss,sheet,i)
-      
-    }
   }
+
+function subfolderation(i,folder,ss,sheet){  
+  // Write folder files
+  var files = folder.getFiles();
+  i = write(folder,files,ss,sheet,i);
+  
+  // get subfolders
+  var subfolders = folder.getFolders();
+  
+  // Repeat for subfolders
+  while(subfolders.hasNext()){
+    var subfolder = subfolders.next();
+    i = subfolderation(i,subfolder,ss,sheet);
+  }
+  return i;
 }
+
 
 // function that writes the folders details to the spreadsheet's sheet
 function write(folder,files,ss,sheet,i){
@@ -55,18 +57,15 @@ function write(folder,files,ss,sheet,i){
 }
 
 function status(doc){
-  
   var completion = doc.getHeader()
-  if (completion==null){completion=""}
-  else {
-    completion=completion.getText()}
-  return completion
+  if (completion == null){completion = "";}
+  else {completion = completion.getText();}
+  return completion;
 }
 
 function result(doc){
-  var success=doc.getFooter()
-  if (success==null){success=""}
-  else {
-    success=success.getText()}
-  return success
+  var success = doc.getFooter();
+  if (success == null){success = "";}
+  else {success = success.getText();}
+  return success;
 }
