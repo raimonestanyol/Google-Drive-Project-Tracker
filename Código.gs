@@ -7,9 +7,9 @@ function getFiles() {
   var sheet = ss.getActiveSheet();
   
   // Set up the spreadsheet to display the results
-  var headers = [["Parent Folder", "File Name", "Status", "Last Updated", "Date created", "File URL"]];
-  sheet.getRange("A1:F").clear();
-  sheet.getRange("A1:F1").setValues(headers);
+  var headers = [["Parent Folder", "File Name", "Status", "Success", "Last Updated", "Date created", "File URL"]];
+  sheet.getRange("A1:G").clear();
+  sheet.getRange("A1:G1").setValues(headers);
   
   
   
@@ -47,7 +47,7 @@ function write(folder,files,ss,sheet,i){
     }
     try{
     var doc = DocumentApp.openById(file.getId());
-    sheet.getRange(i+1, 1, 1, 6).setValues([[folder.getName(),file.getName(),status(doc),file.getLastUpdated(),file.getDateCreated(), file.getUrl()]]);
+    sheet.getRange(i+1, 1, 1, 7).setValues([[folder.getName(),file.getName(),status(doc),result(doc),file.getLastUpdated(),file.getDateCreated(), file.getUrl()]]);
     i++;  
     }catch(e){console.log(e)}
   }
@@ -59,6 +59,14 @@ function status(doc){
   var completion = doc.getHeader()
   if (completion==null){completion=""}
   else {
-    completion=doc.getHeader().getText()}
+    completion=completion.getText()}
   return completion
+}
+
+function result(doc){
+  var success=doc.getFooter()
+  if (success==null){success=""}
+  else {
+    success=success.getText()}
+  return success
 }
