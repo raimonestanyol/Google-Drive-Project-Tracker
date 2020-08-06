@@ -7,9 +7,9 @@ function getFiles() {
   var sheet = ss.getActiveSheet();
   
   // Set up the spreadsheet to display the results
-  var headers = [["Parent Folder", "File Name", "Status", "Success", "Last Updated", "Date created", "File URL"]];
-  sheet.getRange("A1:G").clear();
-  sheet.getRange("A1:G1").setValues(headers);
+  var headers = [["Parent Folder", "File Name", "Status", "Performance", "Last Updated", "Date created", "Index", "File URL"]];
+  sheet.getRange("A1:H").clear();
+  sheet.getRange("A1:H1").setValues(headers);
   
   
   
@@ -53,7 +53,7 @@ function write(folder,files,ss,sheet,i){
     var fileresult = result(doc);
     var lastUpdated = file.getLastUpdated();
     
-    sheet.getRange(i+1, 1, 1, 7).setValues([[getFolderName(folder),file.getName(),filestatus,fileresult,lastUpdated,file.getDateCreated(), file.getUrl()]]);
+    sheet.getRange(i+1, 1, 1, 8).setValues([[getFolderName(folder),file.getName(),filestatus,fileresult,lastUpdated,file.getDateCreated(), i,file.getUrl()]]);
     i++;  
     }catch(e){console.log(e)}
   }
